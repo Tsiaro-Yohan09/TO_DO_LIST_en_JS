@@ -14,17 +14,19 @@ function validerTache(tache, description) {
 
     // Créer une nouvelle ligne dans le tableau
     const creerTr = document.createElement('tr');
+    creerTr.draggable = true;
+    creerTr.classList = 'dragged';
 
     const tacheCell = document.createElement('td');
-    tacheCell.contentEditable = true;
+    tacheCell.contentEditable = false;
     tacheCell.textContent = tache_obj.tache;
-    tacheCell.addEventListener('change', () => miseAjourTache(tache_obj.id, 'tache', tacheCell.textContent));
+    //tacheCell.addEventListener('change', () => miseAjourTache(tache_obj.id, 'tache', tacheCell.textContent));
     creerTr.appendChild(tacheCell);
 
     const descriptionCell = document.createElement('td');
-    descriptionCell.contentEditable = true;
+    descriptionCell.contentEditable = false;
     descriptionCell.textContent = tache_obj.description;
-    descriptionCell.addEventListener('change', () => miseAjourTache(tache_obj.id, 'description', descriptionCell.textContent));
+    //descriptionCell.addEventListener('change', () => miseAjourTache(tache_obj.id, 'description', descriptionCell.textContent));
     creerTr.appendChild(descriptionCell);
 
     const dateCell = document.createElement('td');
@@ -36,6 +38,13 @@ function validerTache(tache, description) {
     deleteBtn.textContent = 'Supprimer';
     deleteBtn.classList = 'btn btn-danger';
     deleteBtn.addEventListener('click', () => deleteTache(tache_obj.id, creerTr));
+
+    const modifyBtn = document.createElement('button');
+    modifyBtn.textContent = 'Modifier';
+    modifyBtn.classList = 'btn btn-success';
+    modifyBtn.addEventListener('click', () => miseAjourTache(tache_obj.id, 'tache', tacheCell.textContent));
+
+    actionCell.appendChild(modifyBtn);
     actionCell.appendChild(deleteBtn);
     creerTr.appendChild(actionCell);
 
@@ -43,14 +52,17 @@ function validerTache(tache, description) {
     document.getElementById('contenir-tache').appendChild(creerTr);
 
     // Sauvegarder les tâches dans le localStorage
-    sauverLocalStorage();//saveTasks();
+    sauverLocalStorage();
+    dragAndDrop();
 }
 
 // METTRE A JOUR UNE TACHE
 function miseAjourTache(tacheId, valeur, newValeur) {
-    const tache = tableau_tache.find(prem => prem.id == tacheId);
+    const valFinal = prompt("Mise a jour a faire");
+    const tache = tableau_tache.find(tache => tache.id == tacheId);
     if (tache) {
-        tache[valeur] = newValeur; // Mettre à jour le champ spécifique (titre ou description)
+        tache[valeur] = valFinal; // Mettre à jour le champ spécifique (titre ou description)
+        console.log('Mise à jour fait');
         sauverLocalStorage();
     }
 }
@@ -73,16 +85,18 @@ function loadTache() {
     tableau_tache = getTache;
     getTache.forEach(tache => {
         const creerTr = document.createElement('tr');
+        creerTr.draggable = true;
+        creerTr.classList = 'dragged';
         const tacheCell = document.createElement('td');
-        tacheCell.contentEditable = true;
+        tacheCell.contentEditable = false;
         tacheCell.textContent = tache.tache;
-        tacheCell.addEventListener('change', () => miseAjourTache(tache.id, 'tache', tacheCell.textContent));
+        //tacheCell.addEventListener('change', () => miseAjourTache(tache.id, 'tache', tacheCell.textContent));
         creerTr.appendChild(tacheCell);
 
         const descriptionCell = document.createElement('td');
-        descriptionCell.contentEditable = true;
+        descriptionCell.contentEditable = false;
         descriptionCell.textContent = tache.description;
-        descriptionCell;addEventListener('change', () => miseAjourTache(tache.id, 'description', descriptionCell.textContent));
+        //descriptionCell;addEventListener('change', () => miseAjourTache(tache.id, 'description', descriptionCell.textContent));
         creerTr.appendChild(descriptionCell);
 
         const dateCell = document.createElement('td');
@@ -94,11 +108,19 @@ function loadTache() {
         deleteBtn.textContent = 'Supprimer';
         deleteBtn.classList = 'btn btn-danger';
         deleteBtn.addEventListener('click', () => deleteTache(tache.id, creerTr));
+
+        const modifyBtn = document.createElement('button');
+        modifyBtn.textContent = 'Modifier';
+        modifyBtn.classList = 'btn btn-success';
+        modifyBtn.addEventListener('click', () => miseAjourTache(tache.id, 'tache', tacheCell.textContent));
+
+        actionCell.appendChild(modifyBtn);
         actionCell.appendChild(deleteBtn);
         creerTr.appendChild(actionCell);
 
         document.getElementById('contenir-tache').appendChild(creerTr);
     });
+    dragAndDrop();
 }
 
 // RECHERCHE LES TACHE PAR MOT-CLés
@@ -115,16 +137,18 @@ function recherche() {
     // afficher les taches filtrées
     filtrerTache.forEach(tache => {
         const creerTr = document.createElement('tr');
+        creerTr.draggable = true;
+        creerTr.classList = 'dragged';
         const tacheCell = document.createElement('td');
-        tacheCell.contentEditable = true;
+        tacheCell.contentEditable = false;
         tacheCell.textContent = tache.tache;
-        tacheCell.addEventListener('change', () => miseAjourTache(tache.id, 'tache', tache.tache));
+        //tacheCell.addEventListener('change', () => miseAjourTache(tache.id, 'tache', tache.tache));
         creerTr.appendChild(tacheCell);
 
         const descriptionCell = document.createElement('td');
-        descriptionCell.contentEditable = true;
+        descriptionCell.contentEditable = false;
         descriptionCell.textContent = tache.description;
-        descriptionCell.addEventListener('change', () => miseAjourTache(tache.id, 'description', descriptionCell.textContent));
+        //descriptionCell.addEventListener('change', () => miseAjourTache(tache.id, 'description', descriptionCell.textContent));
         creerTr.appendChild(descriptionCell);
 
         const dateCell = document.createElement('td');
@@ -136,11 +160,19 @@ function recherche() {
         deleteBtn.textContent = 'Supprimer';
         deleteBtn.classList = 'btn btn-danger';
         deleteBtn.addEventListener('click', () => deleteTache(tache.id, creerTr));
+
+        const modifyBtn = document.createElement('button');
+        modifyBtn.textContent = 'Modifier';
+        modifyBtn.classList = 'btn btn-success';
+        modifyBtn.addEventListener('click', () => miseAjourTache(tache.id, 'tache', tacheCell.textContent));
+
+        actionCell.appendChild(modifyBtn);
         actionCell.appendChild(deleteBtn);
         creerTr.appendChild(actionCell);
 
         tbody.appendChild(creerTr);
     });
+    dragAndDrop();
 }
 
 // TRIER PAR DATE D'AJOUT
@@ -150,17 +182,40 @@ function sortDate() {
     loadTache(); // Recharge de la tache triées
 }
 
+// DRAG and DROP
+function dragAndDrop() {
+    const deplaces = document.querySelectorAll('.dragged');
+    let dragged;
+
+    for (const deplace of deplaces) {
+        deplace.ondragstart  = (e) => {
+            dragged = deplace;
+            e.dataTransfer.setData('text/plain', deplace.innerHTML);
+        }
+
+        deplace.ondragover = (e) => {
+            e.preventDefault();
+        }
+
+        deplace.ondrop = (e) => {
+            dragged.innerHTML = deplace.innerHTML;
+            deplace.innerHTML = e.dataTransfer.getData('text/plain');
+        }
+    }
+    sauverLocalStorage();
+}
+
 // EVENEMENT AJOUTER DANS LE TABLEAU
 document.getElementById('form-tache').addEventListener('submit', function(e) {
     e.preventDefault();
     const tache = document.getElementById('tache').value.trim();
-    const description = document.getElementById('description').value.trim();
-
+    const description = "Non completée";
+    //document.getElementById('description').value.trim();
     validerTache(tache, description);
 
     // Réinitialiser les champs du formulaire
     document.getElementById('tache').value = '';
-    document.getElementById('description').value = '';
+    //document.getElementById('description').value = '';
 })
 
 //CHARGER LES TACHES AU DEMARRAGE
