@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To do list</title>
+    <link rel="stylesheet" href="bootstrap/bootstrap.css">
+    <link rel="stylesheet" href="bootstrap/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h2>TO DO LISTE</h2>
+        <form id="form-tache">
+          <div class="form-group">
+            <label for="tache">Tache :</label>
+            <input type="text" class="form-control" id="tache" placeholder="Enter trache ..." name="tache">
+          </div>
+          <div class="form-group">
+            <label for="dsc">Description :</label>
+            <input type="text" class="form-control" id="description" placeholder="Enter le description ..." name="description">
+          </div>
+          <button type="submit"  class="btn btn-primary">Valider</button>
+        </form>
+    </div>
+
+      <p></p>
+
+      <div class="form-group">
+        <label for="dsc">Recherche :</label>
+        <input type="text" class="form-control" id="recherche" placeholder="Mot à Rechercher ..." onkeyup=recherche()>
+      </div>
+
+      <div class="container">          
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Tache</th>
+              <th>Description</th>
+              <th><a href="#" onclick="sortDate()">Date</a></th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="contenir-tache">
+            <tr></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <script src="accueil.js"></script>
+</body>
+</html>
