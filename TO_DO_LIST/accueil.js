@@ -7,38 +7,47 @@ function validerTache(tache, description) {
         id: Date.now(), // Utiliser l'ID actuel comme identifiant unique
         tache,
         description,
+        stat: 'A faire',
         date: new Date()
     };
 
-    tableau_tache.push(tache_obj); // ajouter le obj tache au tableau
-
+    
     // Créer une nouvelle ligne dans le tableau
     const creerTr = document.createElement('tr');
     creerTr.draggable = true;
     creerTr.classList = 'dragged';
-
+    
     const tacheCell = document.createElement('td');
     tacheCell.contentEditable = false;
     tacheCell.textContent = tache_obj.tache;
     //tacheCell.addEventListener('change', () => miseAjourTache(tache_obj.id, 'tache', tacheCell.textContent));
     creerTr.appendChild(tacheCell);
-
+    
     const descriptionCell = document.createElement('td');
     descriptionCell.contentEditable = false;
     descriptionCell.textContent = tache_obj.description;
     //descriptionCell.addEventListener('change', () => miseAjourTache(tache_obj.id, 'description', descriptionCell.textContent));
     creerTr.appendChild(descriptionCell);
-
+    
+    const statCell = document.createElement('td');
+    const statBtn = document.createElement('button');
+    statBtn.type = 'submit';
+    statBtn.textContent = tache_obj.stat;
+    statBtn.addEventListener('click', () => modifierStatus(tache_obj.id,statBtn,tache_obj,'stat'));
+    modifierCouleurStatus(statBtn,tache_obj.stat,tache_obj)
+    statCell.appendChild(statBtn);
+    creerTr.appendChild(statCell);
+    
     const dateCell = document.createElement('td');
     dateCell.textContent = tache_obj.date.toLocaleString();
     creerTr.appendChild(dateCell);
-
+    
     const actionCell = document.createElement('td');
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = 'Supprimer';
     deleteBtn.classList = 'btn btn-danger';
     deleteBtn.addEventListener('click', () => deleteTache(tache_obj.id, creerTr));
-
+    
     const modifyBtn = document.createElement('button');
     modifyBtn.textContent = 'Modifier';
     modifyBtn.classList = 'btn btn-success';
@@ -50,7 +59,8 @@ function validerTache(tache, description) {
 
     // Ajouter la nouvelle ligne dans le tableau
     document.getElementById('contenir-tache').appendChild(creerTr);
-
+    
+    tableau_tache.push(tache_obj); // ajouter le obj tache au tableau
     // Sauvegarder les tâches dans le localStorage
     sauverLocalStorage();
     dragAndDrop();
@@ -65,6 +75,7 @@ function miseAjourTache(tacheId, valeur, newValeur) {
         console.log('Mise à jour fait');
         sauverLocalStorage();
     }
+    document.location.reload();
 }
 
 // SUPPRIMER UNE TACHE
@@ -72,6 +83,7 @@ function deleteTache(tacheId, tr) {
     tableau_tache = tableau_tache.filter(tache => tache.id !== tacheId); // Supprimer la tâche du tableau
     tr.remove(); // Supprimer la ligne du tableau
     sauverLocalStorage();
+    //document.location.reload();
 }
 
 // SAUVEGARDER A LA localstorage
@@ -98,6 +110,15 @@ function loadTache() {
         descriptionCell.textContent = tache.description;
         //descriptionCell;addEventListener('change', () => miseAjourTache(tache.id, 'description', descriptionCell.textContent));
         creerTr.appendChild(descriptionCell);
+
+        const statCell = document.createElement('td');
+        const statBtn = document.createElement('button');
+        statBtn.type = 'submit';
+        statBtn.textContent = tache.stat;
+        statBtn.addEventListener('click', () => modifierStatus(tache.id,statBtn,tache,'stat'));
+        modifierCouleurStatus(statBtn,tache.stat,tache);
+        statCell.appendChild(statBtn);
+        creerTr.appendChild(statCell);
 
         const dateCell = document.createElement('td');
         dateCell.textContent = tache.date.toLocaleString();
@@ -127,7 +148,7 @@ function loadTache() {
 function recherche() {
     const motCle = document.getElementById('recherche').value.toLowerCase();
     const filtrerTache = tableau_tache.filter(tache =>
-        tache.tache.toLowerCase().includes(motCle) || tache.description.toLowerCase().includes(motCle)
+        tache.tache.toLowerCase().includes(motCle) || tache.description.toLowerCase().includes(motCle) || tache.stat.toLowerCase().includes(motCle)
     )
 
     // effacer tout les lignes existants
@@ -150,6 +171,15 @@ function recherche() {
         descriptionCell.textContent = tache.description;
         //descriptionCell.addEventListener('change', () => miseAjourTache(tache.id, 'description', descriptionCell.textContent));
         creerTr.appendChild(descriptionCell);
+
+        const statCell = document.createElement('td');
+        const statBtn = document.createElement('button');
+        statBtn.type = 'submit';
+        statBtn.textContent = tache.stat;
+        statBtn.addEventListener('click', () => modifierStatus(tache.id,statBtn,tache,'stat'));
+        modifierCouleurStatus(statBtn,tache.stat,tache);
+        statCell.appendChild(statBtn);
+        creerTr.appendChild(statCell);
 
         const dateCell = document.createElement('td');
         dateCell.textContent = tache.date.toLocaleString();
@@ -203,6 +233,45 @@ function dragAndDrop() {
         }
     }
     sauverLocalStorage();
+}
+
+// MODIFIER COULEURS STATUS
+function modifierCouleurStatus(statBtn,status,tache_obj) {
+    
+    if (status) {
+        if (tache_obj.stat === 'En cours') {
+            statBtn.textContent = 'En cours';
+            statBtn.classList = 'bg-info text-white';
+        }
+        else if (tache_obj.stat === 'A faire' || status) {
+            statBtn.textContent = 'A faire';
+            statBtn.classList = 'bg-secondary text-white';
+        }
+        else
+        {
+            statBtn.textContent = 'Terminée';
+            statBtn.classList = 'btn btn-success';
+        }
+    }
+}
+
+// MODIFIER STATUS
+function modifierStatus(tacheId,statBtn,tache_obj,position) {
+    const tache = tableau_tache.find(tache => tache.id == tacheId);
+    if (tache) {
+        if (tache_obj.stat === 'A faire') {
+            statBtn.textContent = 'En cours';
+            tache[position] = 'En cours';
+            sauverLocalStorage();
+            //console.log('Changement terminer')
+        }
+        else if (tache_obj.stat === 'En cours') {
+            statBtn.textContent = 'Terminée';
+            tache[position] = 'Terminée';
+            sauverLocalStorage();
+        }
+        //document.location.reload();
+    }
 }
 
 // EVENEMENT AJOUTER DANS LE TABLEAU
