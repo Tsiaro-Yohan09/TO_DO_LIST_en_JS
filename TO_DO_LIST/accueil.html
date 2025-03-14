@@ -21,6 +21,17 @@
           </div> -->
           <button type="submit"  class="btn btn-primary">Valider</button>
         </form>
+
+        <br>
+        <div class="container">
+          <label for="sel1">Filtrer les tâche :</label>
+              <select class="form-control" id="filtrer" name="filtrer">
+                <option>Tous</option>
+                <option onclick="filtrerTache('A faire')">A faire</option>
+                <option onclick="filtrerTache('Terminée')">Terminée</option>
+                <option onclick="filtrerTache('En cours')">En cours</option>
+              </select>
+        </div>
     </div>
 
       <p></p>
