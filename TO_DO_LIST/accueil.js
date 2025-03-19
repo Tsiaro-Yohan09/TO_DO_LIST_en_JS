@@ -7,6 +7,7 @@ function validerTache(tache, description) {
         id: Date.now(), // Utiliser l'ID actuel comme identifiant unique
         tache,
         description,
+        priority: 'Normale',
         stat: 'A faire',
         date: new Date()
     };
@@ -20,26 +21,34 @@ function validerTache(tache, description) {
     const tacheCell = document.createElement('td');
     tacheCell.contentEditable = false;
     tacheCell.textContent = tache_obj.tache;
-    //tacheCell.addEventListener('change', () => miseAjourTache(tache_obj.id, 'tache', tacheCell.textContent));
     creerTr.appendChild(tacheCell);
     
     const descriptionCell = document.createElement('td');
     descriptionCell.contentEditable = false;
     descriptionCell.textContent = tache_obj.description;
-    //descriptionCell.addEventListener('change', () => miseAjourTache(tache_obj.id, 'description', descriptionCell.textContent));
     creerTr.appendChild(descriptionCell);
+
+    const priCell = document.createElement('td');
+    const priBtn = document.createElement('button');
+    priBtn.type = 'submit';
+    priBtn.classList = 'btn btn-info';
+    priBtn.textContent = tache_obj.priority;
+    modifierCouleurPriority(priBtn,tache_obj.priority,tache_obj);
+    priBtn.addEventListener('click', () => modifierPriority(tache_obj.id,priBtn,tache_obj,'priority'));
+    priCell.appendChild(priBtn);
+    creerTr.appendChild(priCell);
     
     const statCell = document.createElement('td');
     const statBtn = document.createElement('button');
     statBtn.type = 'submit';
     statBtn.textContent = tache_obj.stat;
-    statBtn.addEventListener('click', () => modifierStatus(tache_obj.id,statBtn,tache_obj,'stat'));
     modifierCouleurStatus(statBtn,tache_obj.stat,tache_obj,descriptionCell)
+    statBtn.addEventListener('click', () => modifierStatus(tache_obj.id,statBtn,tache_obj,'stat'));
     statCell.appendChild(statBtn);
     creerTr.appendChild(statCell);
     
     const dateCell = document.createElement('td');
-    dateCell.textContent = tache_obj.date.toLocaleString();
+    dateCell.textContent = tache_obj.date.toLocaleDateString();
     creerTr.appendChild(dateCell);
     
     const actionCell = document.createElement('td');
@@ -51,7 +60,7 @@ function validerTache(tache, description) {
     const modifyBtn = document.createElement('button');
     modifyBtn.textContent = 'Modifier';
     modifyBtn.classList = 'btn btn-success';
-    modifyBtn.addEventListener('click', () => miseAjourTache(tache_obj.id, 'tache', tacheCell.textContent));
+    modifyBtn.addEventListener('click', () => miseAjourTache(tacheCell,tache_obj.id, 'tache', tache_obj.tache));
 
     actionCell.appendChild(modifyBtn);
     actionCell.appendChild(deleteBtn);
@@ -67,15 +76,35 @@ function validerTache(tache, description) {
 }
 
 // METTRE A JOUR UNE TACHE
-function miseAjourTache(tacheId, valeur, newValeur) {
-    const valFinal = prompt("Mise a jour a faire");
+function miseAjourTache(tacheCell, tacheId, valeur, valeurTache) {
+    tacheCell.textContent = '';
+
     const tache = tableau_tache.find(tache => tache.id == tacheId);
-    if (tache) {
-        tache[valeur] = valFinal; // Mettre à jour le champ spécifique (titre ou description)
-        console.log('Mise à jour fait');
-        sauverLocalStorage();
-    }
-    document.location.reload();
+    const creeInputModifier = document.createElement('input');
+    creeInputModifier.id = 'inputModifier';
+    creeInputModifier.value = valeurTache;
+    tacheCell.appendChild(creeInputModifier);
+
+    creeInputModifier.addEventListener('keydown', function(e){
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            tacheCell.textContent = valeurTache;
+            creeInputModifier.remove();
+        }
+        else if (e.key === 'Enter' || e.key === 'Tab') {
+            e.preventDefault();
+            if (creeInputModifier.value.trim() == '') {
+                alert('Le case ne peut pas être vide');
+            }
+            else
+            {
+                tache[valeur] = creeInputModifier.value.trim(); // Mettre à jour le champ spécifique (titre ou description)
+                console.log('Mise à jour fait');
+                sauverLocalStorage();
+                document.location.reload();
+            }
+        }
+    })
 }
 
 // SUPPRIMER UNE TACHE
@@ -89,11 +118,14 @@ function deleteTache(tacheId, tr) {
 // SAUVEGARDER A LA localstorage
 function sauverLocalStorage() {
     localStorage.setItem('taches', JSON.stringify(tableau_tache));
+    const getTache = JSON.parse(localStorage.getItem('taches')) || [];
+    console.log('Tâche sauvegarder : ',getTache);
 }
 
 // CHARGER LES TACHE AU MOMENT DE DEMARRAGE
 function loadTache() {
     const getTache = JSON.parse(localStorage.getItem('taches')) || [];
+    console.log('Tâche charger : ',getTache);
     tableau_tache = getTache;
     getTache.forEach(tache => {
         const creerTr = document.createElement('tr');
@@ -102,21 +134,28 @@ function loadTache() {
         const tacheCell = document.createElement('td');
         tacheCell.contentEditable = false;
         tacheCell.textContent = tache.tache;
-        //tacheCell.addEventListener('change', () => miseAjourTache(tache.id, 'tache', tacheCell.textContent));
         creerTr.appendChild(tacheCell);
 
         const descriptionCell = document.createElement('td');
         descriptionCell.contentEditable = false;
         descriptionCell.textContent = tache.description;
-        //descriptionCell;addEventListener('change', () => miseAjourTache(tache.id, 'description', descriptionCell.textContent));
         creerTr.appendChild(descriptionCell);
+
+        const priCell = document.createElement('td');
+        const priBtn = document.createElement('button');
+        priBtn.type = 'submit';
+        priBtn.textContent = tache.priority;
+        modifierCouleurPriority(priBtn,tache.priority,tache);
+        priBtn.addEventListener('click', () => modifierPriority(tache.id,priBtn,tache,'priority'));
+        priCell.appendChild(priBtn);
+        creerTr.appendChild(priCell);
 
         const statCell = document.createElement('td');
         const statBtn = document.createElement('button');
         statBtn.type = 'submit';
         statBtn.textContent = tache.stat;
-        statBtn.addEventListener('click', () => modifierStatus(tache.id,statBtn,tache,'stat'));
         modifierCouleurStatus(statBtn,tache.stat,tache,descriptionCell);
+        statBtn.addEventListener('click', () => modifierStatus(tache.id,statBtn,tache,'stat'));
         statCell.appendChild(statBtn);
         creerTr.appendChild(statCell);
 
@@ -133,7 +172,7 @@ function loadTache() {
         const modifyBtn = document.createElement('button');
         modifyBtn.textContent = 'Modifier';
         modifyBtn.classList = 'btn btn-success';
-        modifyBtn.addEventListener('click', () => miseAjourTache(tache.id, 'tache', tacheCell.textContent));
+        modifyBtn.addEventListener('click', () => miseAjourTache(tacheCell,tache.id, 'tache', tache.tache));
 
         actionCell.appendChild(modifyBtn);
         actionCell.appendChild(deleteBtn);
@@ -163,14 +202,22 @@ function recherche() {
         const tacheCell = document.createElement('td');
         tacheCell.contentEditable = false;
         tacheCell.textContent = tache.tache;
-        //tacheCell.addEventListener('change', () => miseAjourTache(tache.id, 'tache', tache.tache));
         creerTr.appendChild(tacheCell);
 
         const descriptionCell = document.createElement('td');
         descriptionCell.contentEditable = false;
         descriptionCell.textContent = tache.description;
-        //descriptionCell.addEventListener('change', () => miseAjourTache(tache.id, 'description', descriptionCell.textContent));
         creerTr.appendChild(descriptionCell);
+
+        const priCell = document.createElement('td');
+        const priBtn = document.createElement('button');
+        priBtn.type = 'submit';
+        priBtn.classList = 'btn btn-info';
+        priBtn.textContent = tache.priority;
+        modifierCouleurPriority(priBtn,tache.priority,tache);
+        priBtn.addEventListener('click', () => modifierPriority(tache.id,priBtn,tache,'priority'));
+        priCell.appendChild(priBtn);
+        creerTr.appendChild(priCell);
 
         const statCell = document.createElement('td');
         const statBtn = document.createElement('button');
@@ -194,7 +241,7 @@ function recherche() {
         const modifyBtn = document.createElement('button');
         modifyBtn.textContent = 'Modifier';
         modifyBtn.classList = 'btn btn-success';
-        modifyBtn.addEventListener('click', () => miseAjourTache(tache.id, 'tache', tacheCell.textContent));
+        modifyBtn.addEventListener('click', () => miseAjourTache(tacheCell,tache.id, 'tache', tache.tache));
 
         actionCell.appendChild(modifyBtn);
         actionCell.appendChild(deleteBtn);
@@ -208,13 +255,49 @@ function recherche() {
 // TRIER PAR DATE D'AJOUT
 function sortDate() {
     tableau_tache.sort((a,b) => b.date - a.date); // Trier par date décroissante
-    sauverLocalStorage(); // Sauver apres tri
-    loadTache(); // Recharge de la tache triées
+    //sauverLocalStorage(); // Sauver apres tri
+    //loadTache(); // Recharge de la tache triées
 }
 
 // DRAG and DROP
 function dragAndDrop() {
+    //alert('Drag and drop mandeha');
     const deplaces = document.querySelectorAll('.dragged');
+    var dragged;
+
+    for (const deplace of deplaces) {
+    deplace.addEventListener('dragstart', function(e) {
+        dragged = deplace;
+        e.dataTransfer.setData('text/plain', deplace.innerHTML);
+
+    });
+
+    deplace.addEventListener('dragover', function(e){
+        e.preventDefault();
+    });
+
+    deplace.addEventListener('drop', function(e){
+        e.preventDefault();
+        dragged.innerHTML = deplace.innerHTML;
+        deplace.innerHTML = e.dataTransfer.getData('text/plain');
+        //alert('drop')
+
+        /*const draggedId = e.dataTransfer.getData('text/plain');
+        const draggedRow = document.getElementById(draggedId);
+        alert('drop')
+        console.log(draggedId);
+        
+
+        if (draggedRow !== creerTr) {
+            const parent = creerTr.parentNode;
+            if (e.clientY < creerTr.getBoundingClientRect().top + creerTr.offsetHeigth / 2) {
+                parent.insertBefore(draggedRow, creerTr.nextSibling);
+            }
+        }*/
+        sauverLocalStorage();
+    });
+    }
+    /*const deplaces = document.querySelectorAll('.dragged');
     let dragged;
 
     for (const deplace of deplaces) {
@@ -232,7 +315,7 @@ function dragAndDrop() {
             deplace.innerHTML = e.dataTransfer.getData('text/plain');
         }
     }
-    sauverLocalStorage();
+    sauverLocalStorage();*/
 }
 
 // MODIFIER COULEURS STATUS
@@ -279,11 +362,48 @@ function modifierStatus(tacheId,statBtn,tache_obj,position) {
     }
 }
 
+// MODIFIER PRIORITEE
+function modifierPriority(tacheId,priBtn,tache_obj,position){
+    const tache = tableau_tache.find(tache => tache.id == tacheId);
+
+    if (tache) {
+        if (tache_obj.priority === 'Normale') {
+            priBtn.textContent = 'Urgente';
+            tache[position] = 'Urgente';
+            sauverLocalStorage();
+        }
+        else if (tache_obj.priority === 'Urgente') {
+            priBtn.textContent = 'Normale';
+            tache[position] = 'Normale';
+            sauverLocalStorage();
+        }
+    }
+}
+// MODIFIER COULEUR PRIORITEE
+function modifierCouleurPriority(priBtn,status,tache_obj) {
+    if (status) {
+        if (tache_obj.priority === 'Urgente') {
+            priBtn.classList = 'btn btn-danger';
+        }
+        else if (tache_obj.priority === 'Normale') {
+            priBtn.classList = 'btn btn-info';
+        }
+    }
+}
+
 // FILTRER LES TACHE
 function filtrerTache(filtrer) {
     const filtrerTache = tableau_tache.filter(tache =>
         tache.stat.includes(filtrer)
     )
+
+    const totalTache = filtrerTache.length;
+     //Creer un label pour le total de tâche choisi
+     const theadOrganisation = document.getElementById('organisation');
+     theadOrganisation.textContent = 'Total de tâche choisi : ';
+     const totCell = document.createElement('label');
+     totCell.textContent = totalTache;
+     theadOrganisation.appendChild(totCell);
 
     // effacer tout les lignes existants
     const tbody = document.getElementById('contenir-tache');
@@ -297,14 +417,22 @@ function filtrerTache(filtrer) {
         const tacheCell = document.createElement('td');
         tacheCell.contentEditable = false;
         tacheCell.textContent = tache.tache;
-        //tacheCell.addEventListener('change', () => miseAjourTache(tache.id, 'tache', tache.tache));
         creerTr.appendChild(tacheCell);
 
         const descriptionCell = document.createElement('td');
         descriptionCell.contentEditable = false;
         descriptionCell.textContent = tache.description;
-        //descriptionCell.addEventListener('change', () => miseAjourTache(tache.id, 'description', descriptionCell.textContent));
         creerTr.appendChild(descriptionCell);
+
+        const priCell = document.createElement('td');
+        const priBtn = document.createElement('button');
+        priBtn.type = 'submit';
+        priBtn.classList = 'btn btn-info';
+        priBtn.textContent = tache.priority;
+        modifierCouleurPriority(priBtn,tache.priority,tache);
+        priBtn.addEventListener('click', () => modifierPriority(tache.id,priBtn,tache,'priority'));
+        priCell.appendChild(priBtn);
+        creerTr.appendChild(priCell);
 
         const statCell = document.createElement('td');
         const statBtn = document.createElement('button');
@@ -328,7 +456,7 @@ function filtrerTache(filtrer) {
         const modifyBtn = document.createElement('button');
         modifyBtn.textContent = 'Modifier';
         modifyBtn.classList = 'btn btn-success';
-        modifyBtn.addEventListener('click', () => miseAjourTache(tache.id, 'tache', tacheCell.textContent));
+        modifyBtn.addEventListener('click', () => miseAjourTache(tacheCell,tache.id, 'tache', tache.tache));
 
         actionCell.appendChild(modifyBtn);
         actionCell.appendChild(deleteBtn);
